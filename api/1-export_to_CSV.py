@@ -32,7 +32,9 @@ def main():
         sys.exit(1)
 
     # Get employee TODOs
-    todos_resp = requests.get("{}/todos".format(base_url), params={"userId": user_id})
+    todos_resp = requests.get(
+        "{}/todos".format(base_url), params={"userId": user_id}
+    )
     if todos_resp.status_code != 200:
         sys.exit(1)
 
@@ -45,12 +47,14 @@ def main():
     with open(filename, mode="w", newline="") as csvfile:
         writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
         for task in todos:
-            writer.writerow([
-                user_id,
-                username,
-                task.get("completed"),
-                task.get("title")
-            ])
+            writer.writerow(
+                [
+                    user_id,
+                    username,
+                    task.get("completed"),
+                    task.get("title"),
+                ]
+            )
 
 
 if __name__ == "__main__":
