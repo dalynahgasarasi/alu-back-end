@@ -22,7 +22,7 @@ def main():
     base_url = "https://jsonplaceholder.typicode.com"
 
     # Get employee info
-    user_resp = requests.get("{}/users/{}".format(base_url, user_id))
+    user_resp = requests.get(f"{base_url}/users/{user_id}")
     if user_resp.status_code != 200:
         sys.exit(1)
 
@@ -32,30 +32,28 @@ def main():
         sys.exit(1)
 
     # Get employee TODOs
-    todos_resp = requests.get(
-        "{}/todos".format(base_url), params={"userId": user_id}
-    )
+    todos_resp = requests.get(f"{base_url}/todos", params={"userId": user_id})
     if todos_resp.status_code != 200:
         sys.exit(1)
 
     todos = todos_resp.json()
 
-    # Prepare data for JSON export
-    json_data = []
+    # Prepare JSON data: list of dicts
+    tasks_list = []
     for task in todos:
-        json_data.append(
-            {
-                "task": task.get("title"),
-                "completed": task.get("completed"),
-                "username": username,
-            }
-        )
+        task_dict = {
+            "task": task["title"],
+            "completed": task["completed"],
+            "username": username
+        }
+        tasks_list.append(task_dict)
 
-    data_to_write = {str(user_id): json_data}
+    # Outer dict: key = str(user_id), value = list of dicts
+    data_to_write = {str(user_id): tasks_list}
 
-    # Write to JSON file
-    filename = "{}.json".format(user_id)
-    with open(filename, mode="w") as jsonfile:
+    # Write JSON file with no extra formatting
+    filename = f"{user_id}.json"
+    with open(filename, "w") as jsonfile:
         json.dump(data_to_write, jsonfile)
 
 
