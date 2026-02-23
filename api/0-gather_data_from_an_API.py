@@ -1,29 +1,39 @@
 #!/usr/bin/python3
-"""Script that returns TODO list progress for a given employee ID."""
+"""
+Gather data from an API for a given employee ID.
+"""
+
 import requests
 import sys
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit(1)
+    user_id = sys.argv[1]
 
-    employee_id = sys.argv[1]
+    user_url = "https://jsonplaceholder.typicode.com/users/{}".format(user_id)
+    todos_url = "https://jsonplaceholder.typicode.com/todos"
 
-    user = requests.get(
-        "https://jsonplaceholder.typicode.com/users/{}"
-        .format(employee_id)).json()
+    user_response = requests.get(user_url)
+    todos_response = requests.get(todos_url)
 
-    todos = requests.get(
-        "https://jsonplaceholder.typicode.com/todos?userId={}"
-        .format(employee_id)).json()
+    user = user_response.json()
+    todos = todos_response.json()
 
     employee_name = user.get("name")
-    total = len(todos)
-    done_tasks = [task for task in todos if task.get("completed")]
+
+    total_tasks = 0
+    done_tasks = 0
+    completed_titles = []
+
+    for task in todos:
+        if task.get("userId") == int(user_id):
+            total_tasks += 1
+            if task.get("completed") is True:
+                done_tasks += 1
+                completed_titles.append(task.get("title"))
 
     print("Employee {} is done with tasks({}/{}):"
-          .format(employee_name, len(done_tasks), total))
+          .format(employee_name, done_tasks, total_tasks))
 
-    for task in done_tasks:
-        print("\t {}".format(task.get("title")))
+    for title in completed_titles:
+        print("\t {}".format(title))
